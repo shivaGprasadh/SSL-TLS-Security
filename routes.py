@@ -472,17 +472,23 @@ def api_scan_status():
 @app.route('/scan/interrupt', methods=['POST'])
 def interrupt_scan():
     """Interrupt the currently running scan"""
-    job = ScanJob.query.filter_by(status='running').first()
-    
-    if job:
-        job.status = 'interrupted'
-        job.completed_at = datetime.utcnow()
-        db.session.commit()
+    try:
+        job = ScanJob.query.filter_by(status='running').first()
         
-        flash('Scan interrupted successfully', 'warning')
-        return jsonify({'success': True, 'message': 'Scan interrupted'})
-    else:
-        return jsonify({'success': False, 'message': 'No running scan to interrupt'}), 400
+        if job:
+            job.status = 'interrupted'
+            job.completed_at = datetime.utcnow()
+            db.session.commit()
+            
+            app.logger.info(f"Scan job {job.id} interrupted by user")
+            return jsonify({'success': True, 'message': 'Scan interrupted successfully'})
+        else:
+            return jsonify({'success': False, 'message': 'No running scan to interrupt'}), 400
+            
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Error interrupting scan: {e}")
+        return jsonify({'success': False, 'message': f'Error interrupting scan: {str(e)}'}), 500
 
 def create_scan_result_from_data(domain, scan_data):
     """Create ScanResult object from scan data"""

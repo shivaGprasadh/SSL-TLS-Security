@@ -390,18 +390,53 @@ function updateScanProgress() {
 
 function interruptScan() {
     if (confirm('Are you sure you want to interrupt the scan?')) {
-        fetch('/api/stop_scan', { method: 'POST' })
-            .then(response => {
-                if (response.ok) {
-                    location.reload();
-                } else {
-                    alert('Failed to interrupt scan.');
+        const btn = document.getElementById('interruptScanBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Stopping...';
+        }
+        
+        fetch('/scan/interrupt', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (window.SSLScanner && window.SSLScanner.showNotification) {
+                    window.SSLScanner.showNotification('Scan interrupted successfully', 'warning');
                 }
-            })
-            .catch(error => {
-                console.error('Error interrupting scan:', error);
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                if (window.SSLScanner && window.SSLScanner.showNotification) {
+                    window.SSLScanner.showNotification('Failed to interrupt scan: ' + data.message, 'danger');
+                } else {
+                    alert('Failed to interrupt scan: ' + data.message);
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i data-feather="stop-circle" class="me-2"></i>Stop Scan';
+                    feather.replace();
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error interrupting scan:', error);
+            if (window.SSLScanner && window.SSLScanner.showNotification) {
+                window.SSLScanner.showNotification('Error interrupting scan', 'danger');
+            } else {
                 alert('Failed to interrupt scan.');
-            });
+            }
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-feather="stop-circle" class="me-2"></i>Stop Scan';
+                feather.replace();
+            }
+        });
     }
 }
 

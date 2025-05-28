@@ -606,9 +606,15 @@ function interruptScan() {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             // Show success message and reload page
@@ -618,7 +624,7 @@ function interruptScan() {
             }, 1000);
         } else {
             // Show error message and re-enable button
-            showNotification('Failed to interrupt scan: ' + data.message, 'danger');
+            showNotification('Failed to interrupt scan: ' + (data.message || 'Unknown error'), 'danger');
             if (btn) {
                 btn.disabled = false;
                 btn.innerHTML = '<i data-feather="stop-circle" class="me-2"></i>Stop Scan';
@@ -628,7 +634,7 @@ function interruptScan() {
     })
     .catch(error => {
         console.error('Error interrupting scan:', error);
-        showNotification('Error interrupting scan', 'danger');
+        showNotification('Network error while interrupting scan: ' + error.message, 'danger');
         if (btn) {
             btn.disabled = false;
             btn.innerHTML = '<i data-feather="stop-circle" class="me-2"></i>Stop Scan';
