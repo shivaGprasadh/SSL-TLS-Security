@@ -1,0 +1,108 @@
+(venv) root@secops-server:/var/www/html/TlsScannerTool# vi .env
+(venv) root@secops-server:/var/www/html/TlsScannerTool# python init_db.py
+Database tables initialized successfully
+Creating database tables...
+Database tables created successfully!
+Created tables: ['scheduled_scan', 'domain', 'scan_result', 'scan_history', 'scan_results', 'users', 'scans', 'ip_scans', 'dns_scans', 'http_scans', 'ssl_scans', 'port_scans', 'cors_scans', 'whois_scans', 'cookie_scans', 'disclosure_scans', 'visited_urls', 'tech_scan', 'scan_job']
+(venv) root@secops-server:/var/www/html/TlsScannerTool# python main.py
+Database tables initialized successfully
+ * Serving Flask app 'app'
+ * Debug mode: on
+INFO:werkzeug:WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5005
+ * Running on http://172.28.0.12:5005
+INFO:werkzeug:Press CTRL+C to quit
+INFO:werkzeug: * Restarting with stat
+Database tables initialized successfully
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 777-340-354
+INFO:werkzeug:172.28.0.14 - - [28/May/2025 04:38:54] "GET / HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1963, in _exec_single_context
+    self.dialect.do_execute(
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 943, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column domain.hostname does not exist
+LINE 2: FROM (SELECT domain.id AS domain_id, domain.hostname AS doma...
+                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/flask/app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/werkzeug/middleware/proxy_fix.py", line 183, in __call__
+    return self.app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/flask/app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/routes.py", line 17, in index
+    total_domains = Domain.query.filter_by(active=True).count()
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 3146, in count
+    self._legacy_from_self(col).enable_eagerloads(False).scalar()
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2835, in scalar
+    ret = self.one()
+          ^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2808, in one
+    return self._iter().one()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2857, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2365, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2251, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 306, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1415, in execute
+    return meth(
+           ^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 523, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1637, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1842, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1982, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2351, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1963, in _exec_single_context
+    self.dialect.do_execute(
+  File "/var/www/html/TlsScannerTool/venv/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 943, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column domain.hostname does not exist
+LINE 2: FROM (SELECT domain.id AS domain_id, domain.hostname AS doma...
+                                             ^
+
+[SQL: SELECT count(*) AS count_1 
+FROM (SELECT domain.id AS domain_id, domain.hostname AS domain_hostname, domain.active AS domain_active, domain.created_at AS domain_created_at, domain.last_scanned AS domain_last_scanned 
+FROM domain 
+WHERE domain.active = true) AS anon_1]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+INFO:werkzeug:172.28.0.14 - - [28/May/2025 04:38:54] "GET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 304 -
+INFO:werkzeug:172.28.0.14 - - [28/May/2025 04:38:54] "GET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 304 -
