@@ -592,6 +592,51 @@ function getColumnIndex(table, sortKey) {
     return 1;
 }
 
+/**
+ * Interrupt currently running scan
+ */
+function interruptScan() {
+    const btn = document.getElementById('interruptScanBtn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Stopping...';
+    }
+    
+    fetch('/scan/interrupt', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message and reload page
+            showNotification('Scan interrupted successfully', 'warning');
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            // Show error message and re-enable button
+            showNotification('Failed to interrupt scan: ' + data.message, 'danger');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-feather="stop-circle" class="me-2"></i>Stop Scan';
+                feather.replace();
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error interrupting scan:', error);
+        showNotification('Error interrupting scan', 'danger');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i data-feather="stop-circle" class="me-2"></i>Stop Scan';
+            feather.replace();
+        }
+    });
+}
+
 // Export functions for global access if needed
 window.SSLScanner = {
     showNotification,
@@ -599,7 +644,8 @@ window.SSLScanner = {
     formatBytes,
     timeAgo,
     debounce,
-    throttle
+    throttle,
+    interruptScan
 };
 
 // Auto-initialize table enhancements when content is loaded

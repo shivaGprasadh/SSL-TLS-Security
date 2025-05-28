@@ -62,6 +62,12 @@
                         <small class="text-muted">Remaining</small>
                     </div>
                 </div>
+                <div class="text-center mt-3">
+                    <button type="button" class="btn btn-danger" id="interruptScanBtn" onclick="interruptScan()">
+                        <i data-feather="stop-circle" class="me-2"></i>
+                        Stop Scan
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -380,7 +386,7 @@ function updateScanProgress() {
                 // Continue polling if still running
                 setTimeout(updateScanProgress, 2000);
             } else {
-                // Scan completed, reload page
+                // Scan completed or interrupted, reload page
                 location.reload();
             }
         })
@@ -388,6 +394,54 @@ function updateScanProgress() {
             console.error('Error fetching scan status:', error);
             setTimeout(updateScanProgress, 5000);
         });
+}
+
+function interruptScan() {
+    const btn = document.getElementById('interruptScanBtn');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Stopping...';
+    }
+    
+    fetch('/scan/interrupt', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message and reload page
+            if (window.SSLScanner && window.SSLScanner.showNotification) {
+                window.SSLScanner.showNotification('Scan interrupted successfully', 'warning');
+            }
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            // Show error message and re-enable button
+            if (window.SSLScanner && window.SSLScanner.showNotification) {
+                window.SSLScanner.showNotification('Failed to interrupt scan: ' + data.message, 'danger');
+            }
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-feather="stop-circle" class="me-2"></i>Stop Scan';
+                feather.replace();
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error interrupting scan:', error);
+        if (window.SSLScanner && window.SSLScanner.showNotification) {
+            window.SSLScanner.showNotification('Error interrupting scan', 'danger');
+        }
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i data-feather="stop-circle" class="me-2"></i>Stop Scan';
+            feather.replace();
+        }
+    });
 }
 
 // Start polling for updates

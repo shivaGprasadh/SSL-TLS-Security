@@ -469,6 +469,21 @@ def api_scan_status():
     else:
         return jsonify({'status': 'none'})
 
+@app.route('/scan/interrupt', methods=['POST'])
+def interrupt_scan():
+    """Interrupt the currently running scan"""
+    job = ScanJob.query.filter_by(status='running').first()
+    
+    if job:
+        job.status = 'interrupted'
+        job.completed_at = datetime.utcnow()
+        db.session.commit()
+        
+        flash('Scan interrupted successfully', 'warning')
+        return jsonify({'success': True, 'message': 'Scan interrupted'})
+    else:
+        return jsonify({'success': False, 'message': 'No running scan to interrupt'}), 400
+
 def create_scan_result_from_data(domain, scan_data):
     """Create ScanResult object from scan data"""
     protocols = scan_data.get('protocols', {})
@@ -527,6 +542,12 @@ def perform_bulk_scan(job_id, domain_ids):
 
         try:
             for domain_id in domain_ids:
+                # Check if scan was interrupted
+                db.session.refresh(job)
+                if job.status == 'interrupted':
+                    app.logger.info(f"Scan interrupted by user")
+                    break
+                    
                 domain = Domain.query.get(domain_id)
                 if not domain:
                     continue
@@ -553,9 +574,11 @@ def perform_bulk_scan(job_id, domain_ids):
 
                 db.session.commit()
 
-            job.status = 'completed'
-            job.completed_at = datetime.utcnow()
-            db.session.commit()
+            # Only mark as completed if not interrupted
+            if job.status == 'running':
+                job.status = 'completed'
+                job.completed_at = datetime.utcnow()
+                db.session.commit()
 
         except Exception as e:
             job.status = 'failed'

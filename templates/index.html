@@ -23,7 +23,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-3 mb-3">
         <div class="card bg-info">
             <div class="card-body text-center">
@@ -33,7 +33,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-3 mb-3">
         <div class="card bg-warning">
             <div class="card-body text-center">
@@ -43,7 +43,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-3 mb-3">
         <div class="card bg-success">
             <div class="card-body text-center">
@@ -76,18 +76,28 @@
                     </div>
                 </div>
                 <div class="row text-center">
-                    <div class="col-md-4">
-                        <strong id="completedCount">{{ current_job.completed_domains }}</strong>
-                        <div class="text-muted">Completed</div>
+                    <div class="col-md-3">
+                        <h4 id="completedCount">{{ current_job.completed_domains }}</h4>
+                        <small class="text-muted">Completed</small>
                     </div>
-                    <div class="col-md-4">
-                        <strong>{{ current_job.total_domains }}</strong>
-                        <div class="text-muted">Total</div>
+                    <div class="col-md-3">
+                        <h4>{{ current_job.total_domains }}</h4>
+                        <small class="text-muted">Total</small>
                     </div>
-                    <div class="col-md-4">
-                        <strong id="failedCount">{{ current_job.failed_domains }}</strong>
-                        <div class="text-muted">Failed</div>
+                    <div class="col-md-3">
+                        <h4 id="failedCount">{{ current_job.failed_domains }}</h4>
+                        <small class="text-muted">Failed</small>
                     </div>
+                    <div class="col-md-3">
+                        <h4 id="remainingCount">{{ current_job.total_domains - current_job.completed_domains - current_job.failed_domains }}</h4>
+                        <small class="text-muted">Remaining</small>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <button type="button" class="btn btn-danger" id="interruptScanBtn" onclick="interruptScan()">
+                        <i data-feather="stop-circle" class="me-2"></i>
+                        Stop Scan
+                    </button>
                 </div>
             </div>
         </div>
@@ -169,7 +179,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-6">
         <div class="card">
             <div class="card-header">
@@ -353,7 +363,7 @@ function updateScanProgress() {
                 const progressBar = document.getElementById('scanProgress');
                 const completedCount = document.getElementById('completedCount');
                 const failedCount = document.getElementById('failedCount');
-                
+
                 if (progressBar) {
                     progressBar.style.width = data.progress + '%';
                     progressBar.textContent = data.progress.toFixed(1) + '%';
@@ -364,7 +374,7 @@ function updateScanProgress() {
                 if (failedCount) {
                     failedCount.textContent = data.failed;
                 }
-                
+
                 // Continue polling if still running
                 setTimeout(updateScanProgress, 2000);
             } else {
@@ -376,6 +386,23 @@ function updateScanProgress() {
             console.error('Error fetching scan status:', error);
             setTimeout(updateScanProgress, 5000);
         });
+}
+
+function interruptScan() {
+    if (confirm('Are you sure you want to interrupt the scan?')) {
+        fetch('/api/stop_scan', { method: 'POST' })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Failed to interrupt scan.');
+                }
+            })
+            .catch(error => {
+                console.error('Error interrupting scan:', error);
+                alert('Failed to interrupt scan.');
+            });
+    }
 }
 
 // Start polling for updates
